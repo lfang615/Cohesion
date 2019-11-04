@@ -17,12 +17,12 @@ namespace Repository
             this.RepositoryContext = repositoryContext;
         }
 
-        public IQueryable<T> FindAll()
+        public IEnumerable<T> FindAll()
         {
             return RepositoryContext.Set<T>().AsNoTracking();
         }
 
-        public IQueryable<T> FindByCondition(Expression<Func<T, bool>> expression)
+        public IEnumerable<T> FindByCondition(Expression<Func<T, bool>> expression)
         {
             return RepositoryContext.Set<T>().Where(expression).AsNoTracking();
         }

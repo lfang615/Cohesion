@@ -17,15 +17,20 @@ namespace Entities.Models
 
     public class ServiceRequest
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid id { get; set; }
+        [Required]
         public string buildingCode { get; set; }
+        [Required]
         public string description { get; set; }
+        [Required]
         public CurrentStatus currentStatus { get; set; }
+        [Required]
         public string createdBy { get; set; }
+        [Required]
         public DateTime createdDate { get; set; }
+        [Required]
         public string lastModifiedBy { get; set; }
+        [Required]
         public DateTime lastUpdatedBy { get; set; }
     }
 }

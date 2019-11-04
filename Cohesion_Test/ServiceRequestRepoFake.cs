@@ -1,28 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Linq.Expressions;
+using System.Text;
+using Contracts;
 using Entities.Models;
-using Entities;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore;
 
-namespace Cohesion
+namespace Cohesion_Test
 {
-    public class DataGenerator
+    public class ServiceRequestRepoFake : IServiceRequest
     {
-        public static void Initialize(IServiceProvider serviceProvider)
-        {
-            using (var context = new RepositoryContext(
-                serviceProvider.GetRequiredService<DbContextOptions<RepositoryContext>>()))
-            {
-                if (context.ServiceRequests.Any())
-                {
-                    return; // data exists
-                }
+        private readonly List<ServiceRequest> _serviceRequests;
 
-                context.ServiceRequests.AddRange(
-                    new ServiceRequest
+        public ServiceRequestRepoFake()
+        {
+            _serviceRequests = new List<ServiceRequest>()
+            {
+               new ServiceRequest
                     {
                         id = new Guid("3bec7cd9-035c-4728-ab7d-a467f87fde67"),
                         buildingCode = "1",
@@ -66,10 +60,34 @@ namespace Cohesion
                         lastUpdatedBy = new DateTime(2019, 3, 23),
                         createdDate = new DateTime(2019, 3, 1)
                     }
-                    );
+            };
+        }
 
-                context.SaveChanges();
-            }
+        public IEnumerable<ServiceRequest> FindAll()
+        {
+            return _serviceRequests;
+        }
+
+        public IEnumerable<ServiceRequest> FindByCondition(Expression<Func<ServiceRequest, bool>> expression)
+        {
+            return _serviceRequests.AsQueryable().Where(expression);
+        }
+
+        public void Create(ServiceRequest entity)
+        {
+            entity.id = Guid.NewGuid();
+            _serviceRequests.Add(entity);
+        }
+
+        public void Update(ServiceRequest entity)
+        {
+            // new values assigned to properties
+
+        }
+
+        public void Delete(ServiceRequest entity)
+        {
+            _serviceRequests.Remove(entity);
         }
     }
 }

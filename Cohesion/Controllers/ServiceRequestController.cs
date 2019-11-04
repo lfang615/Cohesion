@@ -8,8 +8,6 @@ using Entities.Models;
 
 namespace Cohesion.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
     public class ServiceRequestController : ControllerBase
     {
         private IServiceRequest _repository;
@@ -17,8 +15,8 @@ namespace Cohesion.Controllers
         {
             _repository = repository;
         }
-        // GET api/values
-        [HttpGet]
+        // GET api/servicerequest
+        [HttpGet("api/servicerequest")]
         public ActionResult<IEnumerable<string>> Get()
         {
             try
@@ -40,13 +38,13 @@ namespace Cohesion.Controllers
             }
         }
 
-        // GET api/values/5
-        [HttpGet("{id}")]
-        public ActionResult<string> Get(int id)
+        // GET api/servicerequest/5
+        [HttpGet("api/servicerequest/{id}")]
+        public ActionResult<string> Get(Guid id)
         {
             try
             {
-                var request = _repository.FindByCondition(x => Convert.ToInt32(x.id) == id);
+                var request = _repository.FindByCondition(x => x.id == id).FirstOrDefault();
 
                 if(request != null)
                 {
@@ -54,7 +52,7 @@ namespace Cohesion.Controllers
                 }
                 else
                 {
-                    return BadRequest();
+                    return NotFound();
                 }
             }
             catch(Exception ex)
@@ -63,8 +61,8 @@ namespace Cohesion.Controllers
             }
         }
 
-        // POST api/values
-        [HttpPost]
+        // POST api/servicerequest
+        [HttpPost("api/servicerequest")]
         public ActionResult Post([FromBody] ServiceRequest request)
         {
             try
@@ -79,9 +77,10 @@ namespace Cohesion.Controllers
                     return BadRequest();
                 }
 
+                request.id = new Guid();
                 _repository.Create(request);
 
-                return Ok("updated service request");
+                return Created("POST/api/servicerequest", request);
             }
             catch(Exception ex)
             {
@@ -90,8 +89,8 @@ namespace Cohesion.Controllers
             
         }
 
-        // PUT api/values/5
-        [HttpPut("{id}")]
+        // PUT api/servicerequest/5
+        [HttpPut("api/servicerequest/{id}")]
         public ActionResult Put(Guid id, [FromBody] ServiceRequest request)
         {
             try
@@ -106,13 +105,21 @@ namespace Cohesion.Controllers
                     return BadRequest();
                 }
 
-                var foundRequest = _repository.FindByCondition(x => x.id == id);
+                var foundRequest = _repository.FindByCondition(x => x.id == id).FirstOrDefault();
                 if(foundRequest == null)
                 {
                     return NotFound();
                 }
 
-                _repository.Update((ServiceRequest)foundRequest);
+                foundRequest.lastModifiedBy = request.lastModifiedBy;
+                foundRequest.lastUpdatedBy = request.lastUpdatedBy;
+                foundRequest.description = request.description;
+                foundRequest.currentStatus = request.currentStatus;
+                foundRequest.createdDate = request.createdDate;
+                foundRequest.createdBy = request.createdBy;
+                foundRequest.buildingCode = request.buildingCode;
+
+                _repository.Update(foundRequest);
 
                 return Ok("updated service request");
             }
@@ -122,19 +129,19 @@ namespace Cohesion.Controllers
             }
         }
 
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        // DELETE api/servicerequest/5
+        [HttpDelete("api/servicerequest/{id}")]
+        public ActionResult Delete(Guid id)
         {
             try
             {
-                var request = _repository.FindByCondition(x => Convert.ToInt32(x.id) == id);
+                var request = _repository.FindByCondition(x => x.id == id).FirstOrDefault();
 
                 if(request != null)
                 {
                     _repository.Delete((ServiceRequest)request);
                     
-                    return StatusCode(201);
+                    return Created("Successful", request);
                 }
                 else
                 {
